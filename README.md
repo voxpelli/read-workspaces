@@ -42,7 +42,6 @@ for await (const { cwd, pkg, workspace } = readWorkspaces()) {
 ## Used by
 
 * [`list-installed`](https://github.com/voxpelli/list-installed)
-* Find more on [GitHub](https://github.com/voxpelli/node-module-template/network/dependents) or [npm](https://www.npmjs.com/package/read-workspaces?activeTab=dependents)
 
 ## Similar modules
 
