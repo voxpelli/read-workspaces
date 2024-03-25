@@ -46,4 +46,4 @@ for await (const { cwd, pkg, workspace } = readWorkspaces()) {
 
 ## Similar modules
 
-* [`read-pkg`](https://github.com/sindresorhus/read-pkg) – is similar in this way
+* [`read-pkg`](https://github.com/sindresorhus/read-pkg) – similar functionality but reads a single package
