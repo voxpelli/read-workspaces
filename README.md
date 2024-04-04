@@ -1,6 +1,8 @@
 # read-workspaces
 
-Read all package.json files in a workspace
+Resolves all `package.json` files of a workspace setup.
+
+Supports both [npm / yarn style workspace definitions](https://docs.npmjs.com/cli/v10/using-npm/workspaces#defining-workspaces) and [pnpm style](https://pnpm.io/pnpm-workspace_yaml).
 
 [![npm version](https://img.shields.io/npm/v/read-workspaces.svg?style=flat)](https://www.npmjs.com/package/read-workspaces)
 [![npm downloads](https://img.shields.io/npm/dm/read-workspaces.svg?style=flat)](https://www.npmjs.com/package/read-workspaces)
@@ -37,7 +39,6 @@ for await (const { cwd, pkg, workspace } = readWorkspaces()) {
 * **`cwd`**: the `string` path to the workspace / root
 * **`pkg`**: the `package.json` content of the workspace / root
 * **`workspace`**: the `string` name of the workspace (not set on the root)
-
 
 ## Used by
 
