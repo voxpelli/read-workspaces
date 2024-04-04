@@ -1,8 +1,11 @@
 import chai from 'chai';
+import chaiAsPromised from 'chai-as-promised';
 import { join } from 'desm';
 
 import { readWorkspaces } from '../index.js';
 import { pkgResult, workspaceAResult, workspaceZResult, pnpmPkgResult } from './fixtures/lookup.js';
+
+chai.use(chaiAsPromised);
 
 const should = chai.should();
 
@@ -38,6 +41,22 @@ describe('readWorkspaces', () => {
       workspaceAResult(cwd),
       workspaceZResult(cwd),
     ]);
+  });
+
+  it('should error on missing package.json file', async () => {
+    const cwd = join(import.meta.url, 'fixtures/missing-package-json');
+
+    await Promise.resolve().then(async () => {
+      /** @type {Array<import('../index.js').Workspace>} */
+      const data = [];
+
+      for await (const item of readWorkspaces({ cwd })) {
+        data.push(item);
+      }
+
+      return data;
+    })
+      .should.be.rejectedWith(/Failed to read package\.json/);
   });
 
   it('should ignore empty workspace filter', async () => {

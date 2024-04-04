@@ -55,7 +55,11 @@ export async function * readWorkspaces (options) {
     workspace,
   } = options || {};
 
-  const mainPkg = await readPackage({ cwd: baseCwd });
+  const mainPkg = await readPackage({ cwd: baseCwd }).catch(
+    /** @param {Error} cause */ cause => {
+      throw new Error('Failed to read package.json', { cause });
+    }
+  );
 
   if (includeWorkspaceRoot) {
     yield {
