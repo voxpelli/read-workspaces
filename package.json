@@ -41,6 +41,7 @@
   },
   "dependencies": {
     "@npmcli/map-workspaces": "^3.0.4",
+    "@pnpm/workspace.read-manifest": "^1.0.3",
     "read-pkg": "^9.0.1"
   },
   "devDependencies": {

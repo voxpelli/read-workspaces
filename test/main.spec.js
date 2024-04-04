@@ -2,7 +2,7 @@ import chai from 'chai';
 import { join } from 'desm';
 
 import { readWorkspaces } from '../index.js';
-import { pkgResult, workspaceAResult, workspaceZResult } from './fixtures/lookup.js';
+import { pkgResult, workspaceAResult, workspaceZResult, pnpmPkgResult } from './fixtures/lookup.js';
 
 const should = chai.should();
 
@@ -196,5 +196,23 @@ describe('readWorkspaces', () => {
     }
 
     data.should.have.length(0).and.deep.equal([]);
+  });
+
+  describe('pnpm', () => {
+    it('should resolve pnpm workspaces', async () => {
+      const cwd = join(import.meta.url, 'fixtures/pnpm-workspace');
+      /** @type {Array<import('../index.js').Workspace>} */
+      const data = [];
+
+      for await (const item of readWorkspaces({ cwd })) {
+        data.push(item);
+      }
+
+      data.should.have.length(3).and.deep.equal([
+        pnpmPkgResult(cwd),
+        workspaceAResult(cwd),
+        workspaceZResult(cwd),
+      ]);
+    });
   });
 });

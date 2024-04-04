@@ -54,3 +54,15 @@ export const workspaceZResult = (/** @type {string} */ cwd) => ({
   },
   workspace: '@voxpelli/workspace-z',
 });
+
+export const pnpmPkgResult = (/** @type {string} */ cwd) => {
+  const { pkg: { workspaces, ...pkg } } = pkgResult(cwd);
+
+  return {
+    cwd,
+    pkg: {
+      ...pkg,
+      packageManager: 'pnpm@8.15.3',
+    },
+  };
+};
