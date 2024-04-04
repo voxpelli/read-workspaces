@@ -1,6 +1,6 @@
 {
   "name": "read-workspaces",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Read all package.json files in a workspace",
   "homepage": "http://github.com/voxpelli/read-workspaces",
   "repository": {
