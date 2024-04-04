@@ -68,10 +68,18 @@ export async function * readWorkspaces (options) {
     return;
   }
 
-  const workspaceList = await mapWorkspaces({
-    cwd: baseCwd,
-    pkg: mainPkg,
-  });
+  const workspaceList =
+    mainPkg.workspaces
+      ? await mapWorkspaces({ cwd: baseCwd, pkg: mainPkg })
+      : (
+          looksLikePnpm(mainPkg)
+            ? await mapPnpmWorkspaces({ cwd: baseCwd, pkg: mainPkg })
+            : undefined
+        );
+
+  if (!workspaceList) {
+    return;
+  }
 
   /** @type {Set<string>} */
   const matchingWorkspaces = new Set();
@@ -101,4 +109,39 @@ export async function * readWorkspaces (options) {
   if (workspace?.length && matchingWorkspaces.size !== (new Set(workspace)).size) {
     throw new Error(`Couldn't find all workspaces, missing: ${workspace.filter(value => !matchingWorkspaces.has(value)).join(', ')}`);
   }
+}
+
+/**
+ * @param {NormalizedPackageJson} pkg
+ * @returns {boolean}
+ */
+function looksLikePnpm (pkg) {
+  return (
+    pkg.packageManager?.startsWith('pnpm') ||
+    pkg.engines?.['pnpm'] !== undefined ||
+    pkg['pnpm'] !== undefined
+  );
+}
+
+/**
+ * @param {Pick<import('@npmcli/map-workspaces').Options, 'cwd' | 'pkg'>} cwd
+ * @returns {Promise<Map<string, string> | undefined>}
+ */
+async function mapPnpmWorkspaces ({ cwd = '.', pkg }) {
+  const { readWorkspaceManifest } = await import('@pnpm/workspace.read-manifest');
+  const pnpmWorkspaceManifest = await readWorkspaceManifest(cwd);
+
+  if (!pnpmWorkspaceManifest || !pnpmWorkspaceManifest.packages) {
+    return;
+  }
+
+  const modifiedPkg = /** @type {NormalizedPackageJson} */ ({
+    ...pkg,
+    workspaces: pnpmWorkspaceManifest.packages,
+  });
+
+  return mapWorkspaces({
+    cwd,
+    pkg: modifiedPkg,
+  });
 }

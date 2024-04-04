@@ -1,0 +1,8 @@
+{
+  "packageManager": "pnpm@8.15.3",
+  "engines": { "node": ">=8.0.0" },
+  "dependencies": {
+    "foo": "^1.0.0",
+    "bar": "^1.0.0"
+  }
+}
