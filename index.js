@@ -38,6 +38,7 @@ function includeWorkspace (filter, name, cwd, baseCwd) {
 /**
  * @typedef Options
  * @property {string|undefined} [cwd]
+ * @property {string[]|undefined} [ignorePaths]
  * @property {boolean|undefined} [includeWorkspaceRoot]
  * @property {boolean|undefined} [skipWorkspaces]
  * @property {string[]|undefined} [workspace]
@@ -50,6 +51,7 @@ function includeWorkspace (filter, name, cwd, baseCwd) {
 export async function * readWorkspaces (options) {
   const {
     cwd: baseCwd = '.',
+    ignorePaths,
     includeWorkspaceRoot = true,
     skipWorkspaces = false,
     workspace,
@@ -72,12 +74,18 @@ export async function * readWorkspaces (options) {
     return;
   }
 
+  const mapWorkspacesOptions = /** @satisfies {import('@npmcli/map-workspaces').Options} */ ({
+    cwd: baseCwd,
+    ignore: ignorePaths || [],
+    pkg: mainPkg,
+  });
+
   const workspaceList =
     mainPkg.workspaces
-      ? await mapWorkspaces({ cwd: baseCwd, pkg: mainPkg })
+      ? await mapWorkspaces(mapWorkspacesOptions)
       : (
           looksLikePnpm(mainPkg)
-            ? await mapPnpmWorkspaces({ cwd: baseCwd, pkg: mainPkg })
+            ? await mapPnpmWorkspaces(mapWorkspacesOptions)
             : undefined
         );
 
@@ -128,10 +136,10 @@ function looksLikePnpm (pkg) {
 }
 
 /**
- * @param {Pick<import('@npmcli/map-workspaces').Options, 'cwd' | 'pkg'>} cwd
+ * @param {import('@npmcli/map-workspaces').Options} options
  * @returns {Promise<Map<string, string> | undefined>}
  */
-async function mapPnpmWorkspaces ({ cwd = '.', pkg }) {
+async function mapPnpmWorkspaces ({ cwd = '.', pkg, ...options }) {
   const { readWorkspaceManifest } = await import('@pnpm/workspace.read-manifest');
   const pnpmWorkspaceManifest = await readWorkspaceManifest(cwd);
 
@@ -145,6 +153,7 @@ async function mapPnpmWorkspaces ({ cwd = '.', pkg }) {
   });
 
   return mapWorkspaces({
+    ...options,
     cwd,
     pkg: modifiedPkg,
   });

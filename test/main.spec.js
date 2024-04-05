@@ -59,6 +59,21 @@ describe('readWorkspaces', () => {
       .should.be.rejectedWith(/Failed to read package\.json/);
   });
 
+  it('should error on duplicate workspace names', async () => {
+    const cwd = join(import.meta.url, 'fixtures/workspace-with-build-output');
+    await Promise.resolve().then(async () => {
+      /** @type {Array<import('../index.js').Workspace>} */
+      const data = [];
+
+      for await (const item of readWorkspaces({ cwd })) {
+        data.push(item);
+      }
+
+      return data;
+    })
+      .should.be.rejectedWith(/must not have multiple workspaces with the same name/);
+  });
+
   it('should ignore empty workspace filter', async () => {
     const cwd = join(import.meta.url, 'fixtures/workspace');
     /** @type {Array<import('../index.js').Workspace>} */
@@ -215,6 +230,22 @@ describe('readWorkspaces', () => {
     }
 
     data.should.have.length(0).and.deep.equal([]);
+  });
+
+  it('should respect "ignorePaths"', async () => {
+    const cwd = join(import.meta.url, 'fixtures/workspace-with-build-output');
+    /** @type {Array<import('../index.js').Workspace>} */
+    const data = [];
+
+    for await (const item of readWorkspaces({ cwd, ignorePaths: ['**/build/**'] })) {
+      data.push(item);
+    }
+
+    data.should.have.length(3).and.deep.equal([
+      pkgResult(cwd, { workspaces: ['packages/**'] }),
+      workspaceAResult(cwd),
+      workspaceZResult(cwd),
+    ]);
   });
 
   describe('pnpm', () => {

@@ -27,9 +27,10 @@ for await (const { cwd, pkg, workspace } = readWorkspaces()) {
 
 ### `readWorkspaces([options])`
 
+* **`options.cwd='.'`**: A `string` pointing to the path of the module to look up the `package.json` and installed modules for
+* **`options.ignorePaths`**: An array of strings, `string[]`, with paths to ignore during the lookup of workspaces
 * **`options.includeWorkspaceRoot=true`**: When set to `false` the workspace root will not be returned. Equivalent to [`npm --include-workspace-root`](https://docs.npmjs.com/cli/v10/commands/npm-run-script#include-workspace-root) but with different default.
-* **`options.path='.'`**: A `string` pointing to the path of the module to look up the `package.json` and installed modules for
-* **`options.workspaces=true`**: When set to `false`, no workspace lookup will occur. Equivalent to [`npm --workspaces`](https://docs.npmjs.com/cli/v10/commands/npm-run-script#workspaces) but with different default.
+* **`options.skipWorkspaces`**: When set to `true`, no workspace lookup will occur. Equivalent to [`npm --workspaces`](https://docs.npmjs.com/cli/v10/commands/npm-run-script#workspaces) but with different default.
 * **`options.workspace`**: An array of strings, `string[]`, that should either match the name of a workspace or its path / path prefix. Narrows returned workspaces to those matching the provided strings. If a requested workspace can't be found, then an error will be thrown when the generator completes. Equivalent to npm's [`npm --workspace` / `npm -w`](https://docs.npmjs.com/cli/v10/commands/npm-run-script#workspace).
 
 #### Returns

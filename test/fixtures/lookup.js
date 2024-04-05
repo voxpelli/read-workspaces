@@ -8,7 +8,7 @@ function platformSpecificPath (moduleName) {
   return moduleName.replaceAll('/', path.sep);
 }
 
-export const pkgResult = (/** @type {string} */ cwd) => ({
+export const pkgResult = (/** @type {string} */ cwd, /** @type {Record<string, unknown>} */ modifiedPkg = {}) => ({
   cwd,
   pkg: {
     _id: '@',
@@ -21,6 +21,7 @@ export const pkgResult = (/** @type {string} */ cwd) => ({
     readme: 'ERROR: No README data found!',
     version: '',
     workspaces: ['packages/*'],
+    ...modifiedPkg,
   },
 });
 
