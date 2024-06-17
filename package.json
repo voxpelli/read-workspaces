@@ -25,7 +25,7 @@
     "build:0": "run-s clean",
     "build:1-declaration": "tsc -p declaration.tsconfig.json",
     "build": "run-s build:*",
-    "check:installed-check": "installed-check -i @voxpelli/eslint-config -i eslint",
+    "check:installed-check": "installed-check -i @voxpelli/eslint-config -i eslint -i @pnpm/workspace.read-manifest",
     "check:knip": "knip",
     "check:lint": "eslint --report-unused-disable-directives .",
     "check:tsc": "tsc",
@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "@npmcli/map-workspaces": "^3.0.4",
-    "@pnpm/workspace.read-manifest": "^1.0.3",
+    "@pnpm/workspace.read-manifest": "^2.0.0",
     "read-pkg": "^9.0.1"
   },
   "devDependencies": {
