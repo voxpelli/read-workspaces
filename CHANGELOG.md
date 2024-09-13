@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.2.3](https://github.com/voxpelli/read-workspaces/compare/v1.2.2...v1.2.3) (2024-09-13)
+
+
+### 🧹 Chores
+
+* **deps:** update dev dependencies ([cb61eac](https://github.com/voxpelli/read-workspaces/commit/cb61eac3cdd7adf750ddbc0a58866fa7355f9f36))
+* **deps:** update linting dependencies ([#6](https://github.com/voxpelli/read-workspaces/issues/6)) ([7ef79c2](https://github.com/voxpelli/read-workspaces/commit/7ef79c261565b4984a3b916d57640b5b165b6239))
+* **deps:** update type dependencies ([#5](https://github.com/voxpelli/read-workspaces/issues/5)) ([a1df4b9](https://github.com/voxpelli/read-workspaces/commit/a1df4b930acc168129875b49476080fe6048f971))
+
 ## [1.2.2](https://github.com/voxpelli/read-workspaces/compare/v1.2.1...v1.2.2) (2024-06-17)
 
 
