@@ -40,7 +40,7 @@
     "test": "run-s check test:*"
   },
   "dependencies": {
-    "@npmcli/map-workspaces": "^3.0.4",
+    "@npmcli/map-workspaces": "^4.0.0",
     "@pnpm/workspace.read-manifest": "^2.0.0",
     "read-pkg": "^9.0.1"
   },
