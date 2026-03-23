@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ESM library that resolves all `package.json` files in a workspace setup. Supports npm/yarn/bun, pnpm, and Deno workspace definitions. Detection priority: npm/Yarn/Bun > pnpm > Deno.
 
+Node engine requirements: `^20.19.0 || ^22.13.0 || >=24`.
+
 ## Commands
 
 - `npm test` — Full check suite + tests (runs `check` then `test:*`)
@@ -19,11 +21,15 @@ ESM library that resolves all `package.json` files in a workspace setup. Support
 
 ## Architecture
 
-Single-file library (`index.js`) exporting one async generator function `readWorkspaces(options?)` that yields `{ cwd, pkg, workspace? }` objects. Workspace detection works by:
+Single-file library (`index.js`) exporting one async generator function `readWorkspaces(options?)` that yields `{ cwd, pkg, workspace? }` objects.
+
+Options: `cwd` (default `'.'`), `ignorePaths` (glob patterns to skip), `includeWorkspaceRoot` (default `true`), `skipWorkspaces` (default `false`), `workspace` (filter by name or path).
+
+Workspace detection works by:
 
 1. Reading root `package.json` via `read-pkg`
 2. If `workspaces` field exists → npm/yarn/bun path via `@npmcli/map-workspaces`
-3. Else if pnpm indicators found → reads `pnpm-workspace.yaml` via `@pnpm/workspace.read-manifest`, converts to npm format
+3. Else if pnpm indicators found (`packageManager` starts with `pnpm`, `engines.pnpm` exists, or `pnpm` field exists) → reads `pnpm-workspace.yaml` via `@pnpm/workspace.read-manifest`, converts to npm format
 4. Else → tries `deno.json`/`deno.jsonc` for Deno workspace array, converts to npm format
 
 Tests in `test/main.spec.js` using `node:test` + `node:assert/strict`. Test fixtures in `test/fixtures/` for each workspace type. `test/fixtures/lookup.js` is a shared test helper (not a test file — this is why `node --test` needs an explicit file path).

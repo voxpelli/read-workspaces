@@ -221,5 +221,14 @@ describe('readWorkspaces', () => {
         workspaceZResult(cwd),
       ]);
     });
+
+    it('should error on malformed deno.json', async () => {
+      const cwd = path.join(import.meta.dirname, 'fixtures/deno-workspace-malformed');
+
+      await assert.rejects(
+        async () => collect({ cwd }),
+        (/** @type {unknown} */ err) => err instanceof SyntaxError
+      );
+    });
   });
 });

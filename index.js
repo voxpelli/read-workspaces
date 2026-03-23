@@ -167,7 +167,7 @@ async function mapPnpmWorkspaces ({ cwd = '.', pkg, ...options }) {
 async function mapDenoWorkspaces ({ cwd = '.', pkg, ...options }) {
   const denoConfig = await readDenoConfig(cwd);
 
-  if (!denoConfig || !Array.isArray(denoConfig.workspace)) {
+  if (!denoConfig || !Array.isArray(denoConfig.workspace) || !denoConfig.workspace.every(/** @param {unknown} item */ item => typeof item === 'string')) {
     return;
   }
 
@@ -192,6 +192,11 @@ async function readDenoConfig (cwd) {
     try {
       const content = await readFile(path.resolve(cwd, filename), 'utf8');
       return JSON.parse(content);
-    } catch {}
+    } catch (err) {
+      if (err && typeof err === 'object' && 'code' in err && (err.code === 'ENOENT' || err.code === 'ENOTDIR')) {
+        continue;
+      }
+      throw err;
+    }
   }
 }
