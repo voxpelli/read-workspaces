@@ -35,7 +35,7 @@
     "clean": "run-p clean:*",
     "prepare": "husky",
     "prepublishOnly": "run-s build",
-    "test:mocha": "node --test 'test/**/*.spec.js'",
+    "test:mocha": "node --test test/main.spec.js",
     "test-ci": "run-s test:*",
     "test": "run-s check test:*"
   },
