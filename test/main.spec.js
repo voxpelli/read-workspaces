@@ -1,42 +1,42 @@
-import chai from 'chai';
-import chaiAsPromised from 'chai-as-promised';
-import { join } from 'desm';
+import path from 'node:path';
+import { describe, it } from 'node:test';
+import assert from 'node:assert/strict';
 
 import { readWorkspaces } from '../index.js';
-import { pkgResult, workspaceAResult, workspaceZResult, pnpmPkgResult } from './fixtures/lookup.js';
+import { pkgResult, workspaceAResult, workspaceZResult, pnpmPkgResult, denoPkgResult } from './fixtures/lookup.js';
 
-chai.use(chaiAsPromised);
+/**
+ * @param {import('../index.js').Options} [options]
+ * @returns {Promise<Array<import('../index.js').Workspace>>}
+ */
+async function collect (options) {
+  /** @type {Array<import('../index.js').Workspace>} */
+  const data = [];
 
-const should = chai.should();
+  for await (const item of readWorkspaces(options)) {
+    data.push(item);
+  }
+
+  return data;
+}
 
 describe('readWorkspaces', () => {
   it('should return data', async () => {
-    /** @type {Array<import('../index.js').Workspace>} */
-    const data = [];
+    const data = await collect();
 
-    for await (const item of readWorkspaces()) {
-      data.push(item);
-    }
-
-    data.should.have.length(1);
-
-    for (const item of data) {
-      item.should.be.an('object')
-        .with.keys('cwd', 'pkg')
-        .and.have.nested.property('pkg.name', 'read-workspaces');
-    }
+    assert.equal(data.length, 1);
+    assert.equal(typeof data[0], 'object');
+    assert.ok(data[0]);
+    assert.deepEqual(Object.keys(data[0]).sort(), ['cwd', 'pkg']);
+    assert.equal(data[0].pkg.name, 'read-workspaces');
   });
 
   it('should return data from cwd when specified', async () => {
-    const cwd = join(import.meta.url, 'fixtures/workspace');
-    /** @type {Array<import('../index.js').Workspace>} */
-    const data = [];
+    const cwd = path.join(import.meta.dirname, 'fixtures/workspace');
+    const data = await collect({ cwd });
 
-    for await (const item of readWorkspaces({ cwd })) {
-      data.push(item);
-    }
-
-    data.should.have.length(3).and.deep.equal([
+    assert.equal(data.length, 3);
+    assert.deepEqual(data, [
       pkgResult(cwd),
       workspaceAResult(cwd),
       workspaceZResult(cwd),
@@ -44,46 +44,29 @@ describe('readWorkspaces', () => {
   });
 
   it('should error on missing package.json file', async () => {
-    const cwd = join(import.meta.url, 'fixtures/missing-package-json');
+    const cwd = path.join(import.meta.dirname, 'fixtures/missing-package-json');
 
-    await Promise.resolve().then(async () => {
-      /** @type {Array<import('../index.js').Workspace>} */
-      const data = [];
-
-      for await (const item of readWorkspaces({ cwd })) {
-        data.push(item);
-      }
-
-      return data;
-    })
-      .should.be.rejectedWith(/Failed to read package\.json/);
+    await assert.rejects(
+      async () => collect({ cwd }),
+      /Failed to read package\.json/
+    );
   });
 
   it('should error on duplicate workspace names', async () => {
-    const cwd = join(import.meta.url, 'fixtures/workspace-with-build-output');
-    await Promise.resolve().then(async () => {
-      /** @type {Array<import('../index.js').Workspace>} */
-      const data = [];
+    const cwd = path.join(import.meta.dirname, 'fixtures/workspace-with-build-output');
 
-      for await (const item of readWorkspaces({ cwd })) {
-        data.push(item);
-      }
-
-      return data;
-    })
-      .should.be.rejectedWith(/must not have multiple workspaces with the same name/);
+    await assert.rejects(
+      async () => collect({ cwd }),
+      /must not have multiple workspaces with the same name/
+    );
   });
 
   it('should ignore empty workspace filter', async () => {
-    const cwd = join(import.meta.url, 'fixtures/workspace');
-    /** @type {Array<import('../index.js').Workspace>} */
-    const data = [];
+    const cwd = path.join(import.meta.dirname, 'fixtures/workspace');
+    const data = await collect({ cwd, workspace: [] });
 
-    for await (const item of readWorkspaces({ cwd, workspace: [] })) {
-      data.push(item);
-    }
-
-    data.should.have.length(3).and.deep.equal([
+    assert.equal(data.length, 3);
+    assert.deepEqual(data, [
       pkgResult(cwd),
       workspaceAResult(cwd),
       workspaceZResult(cwd),
@@ -91,60 +74,44 @@ describe('readWorkspaces', () => {
   });
 
   it('should include workspaces when requested by name', async () => {
-    const cwd = join(import.meta.url, 'fixtures/workspace');
-    /** @type {Array<import('../index.js').Workspace>} */
-    const data = [];
+    const cwd = path.join(import.meta.dirname, 'fixtures/workspace');
+    const data = await collect({ cwd, workspace: ['@voxpelli/workspace-a'] });
 
-    for await (const item of readWorkspaces({ cwd, workspace: ['@voxpelli/workspace-a'] })) {
-      data.push(item);
-    }
-
-    data.should.have.length(2).and.deep.equal([
+    assert.equal(data.length, 2);
+    assert.deepEqual(data, [
       pkgResult(cwd),
       workspaceAResult(cwd),
     ]);
   });
 
   it('should include workspaces when requested by exact absolute path', async () => {
-    const cwd = join(import.meta.url, 'fixtures/workspace');
-    /** @type {Array<import('../index.js').Workspace>} */
-    const data = [];
+    const cwd = path.join(import.meta.dirname, 'fixtures/workspace');
+    const data = await collect({ cwd, workspace: [`${cwd}/packages/a`] });
 
-    for await (const item of readWorkspaces({ cwd, workspace: [`${cwd}/packages/a`] })) {
-      data.push(item);
-    }
-
-    data.should.have.length(2).and.deep.equal([
+    assert.equal(data.length, 2);
+    assert.deepEqual(data, [
       pkgResult(cwd),
       workspaceAResult(cwd),
     ]);
   });
 
   it('should include workspaces when requested by exact relative path', async () => {
-    const cwd = join(import.meta.url, 'fixtures/workspace');
-    /** @type {Array<import('../index.js').Workspace>} */
-    const data = [];
+    const cwd = path.join(import.meta.dirname, 'fixtures/workspace');
+    const data = await collect({ cwd, workspace: ['packages/a'] });
 
-    for await (const item of readWorkspaces({ cwd, workspace: ['packages/a'] })) {
-      data.push(item);
-    }
-
-    data.should.have.length(2).and.deep.equal([
+    assert.equal(data.length, 2);
+    assert.deepEqual(data, [
       pkgResult(cwd),
       workspaceAResult(cwd),
     ]);
   });
 
   it('should include workspaces when requested by path prefix', async () => {
-    const cwd = join(import.meta.url, 'fixtures/workspace');
-    /** @type {Array<import('../index.js').Workspace>} */
-    const data = [];
+    const cwd = path.join(import.meta.dirname, 'fixtures/workspace');
+    const data = await collect({ cwd, workspace: [`${cwd}/packages`] });
 
-    for await (const item of readWorkspaces({ cwd, workspace: [`${cwd}/packages`] })) {
-      data.push(item);
-    }
-
-    data.should.have.length(3).and.deep.equal([
+    assert.equal(data.length, 3);
+    assert.deepEqual(data, [
       pkgResult(cwd),
       workspaceAResult(cwd),
       workspaceZResult(cwd),
@@ -152,7 +119,7 @@ describe('readWorkspaces', () => {
   });
 
   it('should throw at end of iteration if a requested workspace is missing', async () => {
-    const cwd = join(import.meta.url, 'fixtures/workspace');
+    const cwd = path.join(import.meta.dirname, 'fixtures/workspace');
     /** @type {Array<import('../index.js').Workspace>} */
     const data = [];
 
@@ -167,81 +134,61 @@ describe('readWorkspaces', () => {
       referenceErr = err;
     }
 
-    should.exist(referenceErr);
+    assert.ok(referenceErr instanceof Error);
+    assert.equal(referenceErr.message, 'Couldn\'t find all workspaces, missing: packages/b');
 
-    referenceErr.should.be.an('error').with.property('message', 'Couldn\'t find all workspaces, missing: packages/b');
-
-    data.should.have.length(2).and.deep.equal([
+    assert.equal(data.length, 2);
+    assert.deepEqual(data, [
       pkgResult(cwd),
       workspaceAResult(cwd),
     ]);
   });
 
   it('should respect "skipWorkspaces"', async () => {
-    const cwd = join(import.meta.url, 'fixtures/workspace');
-    /** @type {Array<import('../index.js').Workspace>} */
-    const data = [];
+    const cwd = path.join(import.meta.dirname, 'fixtures/workspace');
+    const data = await collect({ cwd, skipWorkspaces: true });
 
-    for await (const item of readWorkspaces({ cwd, skipWorkspaces: true })) {
-      data.push(item);
-    }
-
-    data.should.have.length(1).and.deep.equal([
+    assert.equal(data.length, 1);
+    assert.deepEqual(data, [
       pkgResult(cwd),
     ]);
   });
 
   it('should have "skipWorkspaces" skip workspaces even when workspaces are specifically sent in', async () => {
-    const cwd = join(import.meta.url, 'fixtures/workspace');
-    /** @type {Array<import('../index.js').Workspace>} */
-    const data = [];
+    const cwd = path.join(import.meta.dirname, 'fixtures/workspace');
+    const data = await collect({ cwd, skipWorkspaces: true, workspace: ['@voxpelli/workspace-a'] });
 
-    for await (const item of readWorkspaces({ cwd, skipWorkspaces: true, workspace: ['@voxpelli/workspace-a'] })) {
-      data.push(item);
-    }
-
-    data.should.have.length(1).and.deep.equal([
+    assert.equal(data.length, 1);
+    assert.deepEqual(data, [
       pkgResult(cwd),
     ]);
   });
 
   it('should respect "includeWorkspaceRoot"', async () => {
-    const cwd = join(import.meta.url, 'fixtures/workspace');
-    /** @type {Array<import('../index.js').Workspace>} */
-    const data = [];
+    const cwd = path.join(import.meta.dirname, 'fixtures/workspace');
+    const data = await collect({ cwd, includeWorkspaceRoot: false });
 
-    for await (const item of readWorkspaces({ cwd, includeWorkspaceRoot: false })) {
-      data.push(item);
-    }
-
-    data.should.have.length(2).and.deep.equal([
+    assert.equal(data.length, 2);
+    assert.deepEqual(data, [
       workspaceAResult(cwd),
       workspaceZResult(cwd),
     ]);
   });
 
   it('should respect both "includeWorkspaceRoot" and "skipWorkspaces" at once', async () => {
-    const cwd = join(import.meta.url, 'fixtures/workspace');
-    /** @type {Array<import('../index.js').Workspace>} */
-    const data = [];
+    const cwd = path.join(import.meta.dirname, 'fixtures/workspace');
+    const data = await collect({ cwd, includeWorkspaceRoot: false, skipWorkspaces: true });
 
-    for await (const item of readWorkspaces({ cwd, includeWorkspaceRoot: false, skipWorkspaces: true })) {
-      data.push(item);
-    }
-
-    data.should.have.length(0).and.deep.equal([]);
+    assert.equal(data.length, 0);
+    assert.deepEqual(data, []);
   });
 
   it('should respect "ignorePaths"', async () => {
-    const cwd = join(import.meta.url, 'fixtures/workspace-with-build-output');
-    /** @type {Array<import('../index.js').Workspace>} */
-    const data = [];
+    const cwd = path.join(import.meta.dirname, 'fixtures/workspace-with-build-output');
+    const data = await collect({ cwd, ignorePaths: ['**/build/**'] });
 
-    for await (const item of readWorkspaces({ cwd, ignorePaths: ['**/build/**'] })) {
-      data.push(item);
-    }
-
-    data.should.have.length(3).and.deep.equal([
+    assert.equal(data.length, 3);
+    assert.deepEqual(data, [
       pkgResult(cwd, { workspaces: ['packages/**'] }),
       workspaceAResult(cwd),
       workspaceZResult(cwd),
@@ -250,16 +197,26 @@ describe('readWorkspaces', () => {
 
   describe('pnpm', () => {
     it('should resolve pnpm workspaces', async () => {
-      const cwd = join(import.meta.url, 'fixtures/pnpm-workspace');
-      /** @type {Array<import('../index.js').Workspace>} */
-      const data = [];
+      const cwd = path.join(import.meta.dirname, 'fixtures/pnpm-workspace');
+      const data = await collect({ cwd });
 
-      for await (const item of readWorkspaces({ cwd })) {
-        data.push(item);
-      }
-
-      data.should.have.length(3).and.deep.equal([
+      assert.equal(data.length, 3);
+      assert.deepEqual(data, [
         pnpmPkgResult(cwd),
+        workspaceAResult(cwd),
+        workspaceZResult(cwd),
+      ]);
+    });
+  });
+
+  describe('deno', () => {
+    it('should resolve deno workspaces', async () => {
+      const cwd = path.join(import.meta.dirname, 'fixtures/deno-workspace');
+      const data = await collect({ cwd });
+
+      assert.equal(data.length, 3);
+      assert.deepEqual(data, [
+        denoPkgResult(cwd),
         workspaceAResult(cwd),
         workspaceZResult(cwd),
       ]);
