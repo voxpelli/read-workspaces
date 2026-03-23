@@ -1,7 +1,7 @@
 {
   "name": "read-workspaces",
   "version": "1.2.2",
-  "description": "Read all package.json files in a workspace",
+  "description": "Read all package.json files in a workspace — supports npm, Yarn, Bun, pnpm, and Deno",
   "homepage": "http://github.com/voxpelli/read-workspaces",
   "repository": {
     "type": "git",
@@ -40,9 +40,9 @@
     "test": "run-s check test:*"
   },
   "dependencies": {
-    "@npmcli/map-workspaces": "^3.0.4",
-    "@pnpm/workspace.read-manifest": "^2.0.0",
-    "read-pkg": "^9.0.1"
+    "@npmcli/map-workspaces": "^5.0.3",
+    "@pnpm/workspace.read-manifest": "^1000.3.0",
+    "read-pkg": "^10.1.0"
   },
   "devDependencies": {
     "@types/node": "^20.19.0",
