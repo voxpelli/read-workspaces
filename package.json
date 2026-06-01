@@ -51,7 +51,7 @@
     "@types/node": "^18.19.50",
     "@types/npmcli__map-workspaces": "^3.0.4",
     "@voxpelli/eslint-config": "^22.1.0",
-    "@voxpelli/tsconfig": "^14.0.0",
+    "@voxpelli/tsconfig": "^16.2.1",
     "c8": "^10.1.2",
     "chai": "^4.5.0",
     "chai-as-promised": "^7.1.2",
@@ -63,7 +63,7 @@
     "mocha": "^10.7.3",
     "npm-run-all2": "^6.2.2",
     "type-coverage": "^2.29.1",
-    "typescript": "~5.5.3",
+    "typescript": "~6.0.3",
     "validate-conventional-commit": "^1.0.4"
   }
 }
