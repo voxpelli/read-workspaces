@@ -2,20 +2,6 @@
 
 Resolves all `package.json` files of a workspace setup.
 
-Supports workspace definitions from multiple package managers and runtimes:
-
-| Package Manager / Runtime | Workspace Configuration | Detection |
-|---------------------------|------------------------|-----------|
-| **npm** | [`package.json` `"workspaces"`](https://docs.npmjs.com/cli/v10/using-npm/workspaces#defining-workspaces) | Direct |
-| **Yarn** | `package.json` `"workspaces"` | Direct (same format as npm) |
-| **Bun** | `package.json` `"workspaces"` | Direct (same format as npm) |
-| **pnpm** | [`pnpm-workspace.yaml`](https://pnpm.io/pnpm-workspace_yaml) | `packageManager`, `engines.pnpm`, or `pnpm` field in root `package.json` |
-| **Deno** | `deno.json` `"workspace"` | Presence of `deno.json` with a `workspace` array. Only standard JSON is supported — `deno.jsonc` files with comments are not parsed. |
-
-All workspace members must have a `package.json` file. For Deno workspaces, the workspace structure is read from `deno.json`, but each member's `package.json` is used for the resolved package data.
-
-Detection priority: npm/Yarn/Bun (`package.json` workspaces) > pnpm > Deno.
-
 [![npm version](https://img.shields.io/npm/v/read-workspaces.svg?style=flat)](https://www.npmjs.com/package/read-workspaces)
 [![npm downloads](https://img.shields.io/npm/dm/read-workspaces.svg?style=flat)](https://www.npmjs.com/package/read-workspaces)
 [![neostandard javascript style](https://img.shields.io/badge/code_style-neostandard-7fffff?style=flat&labelColor=ff80ff)](https://github.com/neostandard/neostandard)
@@ -43,6 +29,19 @@ import { readWorkspaces } from 'read-workspaces';
 const workspaces = await Array.fromAsync(readWorkspaces());
 ```
 
+## Supported workspace definitions
+
+| Package Manager / Runtime | Workspace Configuration | Detection |
+|---------------------------|------------------------|-----------|
+| **npm** | [`package.json` `"workspaces"`](https://docs.npmjs.com/cli/v10/using-npm/workspaces#defining-workspaces) | Direct |
+| **Yarn** | `package.json` `"workspaces"` | Direct (same format as npm) |
+| **Bun** | `package.json` `"workspaces"` | Direct (same format as npm) |
+| **pnpm** | [`pnpm-workspace.yaml`](https://pnpm.io/pnpm-workspace_yaml) | `packageManager`, `engines.pnpm`, or `pnpm` field in root `package.json` |
+| **Deno** | `deno.json` `"workspace"` | Presence of `deno.json` with a `workspace` array. Only standard JSON is supported — `deno.jsonc` files with comments are not parsed. |
+
+All workspace members must have a `package.json` file. For Deno workspaces, the workspace structure is read from `deno.json`, but each member's `package.json` is used for the resolved package data.
+
+Detection priority: npm/Yarn/Bun (`package.json` workspaces) > pnpm > Deno.
 
 ## API
 
