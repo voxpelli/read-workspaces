@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 
 import { readWorkspaces } from '../index.js';
 import {
-  pkgResult, pnpmPkgResult, workspaceAResult, workspaceZResult,
+  denoPkgResult, pkgResult, pnpmPkgResult, workspaceAResult, workspaceZResult,
 } from './fixtures/lookup.js';
 
 /**
@@ -187,6 +187,27 @@ describe('readWorkspaces', () => {
         workspaceAResult(cwd),
         workspaceZResult(cwd),
       ]);
+    });
+  });
+
+  describe('deno', () => {
+    it('should resolve deno workspaces', async () => {
+      const cwd = path.join(import.meta.dirname, 'fixtures/deno-workspace');
+
+      assert.deepStrictEqual(await collectWorkspaces({ cwd }), [
+        denoPkgResult(cwd),
+        workspaceAResult(cwd),
+        workspaceZResult(cwd),
+      ]);
+    });
+
+    it('should error on malformed deno.json', async () => {
+      const cwd = path.join(import.meta.dirname, 'fixtures/deno-workspace-malformed');
+
+      await assert.rejects(
+        () => collectWorkspaces({ cwd }),
+        (/** @type {unknown} */ err) => err instanceof SyntaxError
+      );
     });
   });
 });

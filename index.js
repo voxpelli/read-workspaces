@@ -1,3 +1,4 @@
+import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import mapWorkspaces from '@npmcli/map-workspaces';
@@ -86,7 +87,7 @@ export async function * readWorkspaces (options) {
       : (
           looksLikePnpm(mainPkg)
             ? await mapPnpmWorkspaces(mapWorkspacesOptions)
-            : undefined
+            : await mapDenoWorkspaces(mapWorkspacesOptions)
         );
 
   if (!workspaceList) {
@@ -157,4 +158,45 @@ async function mapPnpmWorkspaces ({ cwd = '.', pkg, ...options }) {
     cwd,
     pkg: modifiedPkg,
   });
+}
+
+/**
+ * @param {import('@npmcli/map-workspaces').Options} options
+ * @returns {Promise<Map<string, string> | undefined>}
+ */
+async function mapDenoWorkspaces ({ cwd = '.', pkg, ...options }) {
+  const denoConfig = await readDenoConfig(cwd);
+
+  if (!denoConfig || !Array.isArray(denoConfig.workspace) || !denoConfig.workspace.every(/** @param {unknown} item */ item => typeof item === 'string')) {
+    return;
+  }
+
+  const modifiedPkg = /** @type {NormalizedPackageJson} */ ({
+    ...pkg,
+    workspaces: denoConfig.workspace,
+  });
+
+  return mapWorkspaces({
+    ...options,
+    cwd,
+    pkg: modifiedPkg,
+  });
+}
+
+/**
+ * @param {string} cwd
+ * @returns {Promise<{ workspace?: string[] } | undefined>}
+ */
+async function readDenoConfig (cwd) {
+  for (const filename of ['deno.json', 'deno.jsonc']) {
+    try {
+      const content = await readFile(path.resolve(cwd, filename), 'utf8');
+      return JSON.parse(content);
+    } catch (err) {
+      if (err && typeof err === 'object' && 'code' in err && (err.code === 'ENOENT' || err.code === 'ENOTDIR')) {
+        continue;
+      }
+      throw err;
+    }
+  }
 }
