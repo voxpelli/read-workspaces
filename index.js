@@ -1,6 +1,8 @@
+import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import mapWorkspaces from '@npmcli/map-workspaces';
+import { assertOptionalKeyWithType, isStringArray } from '@voxpelli/typed-utils';
 import { readPackage } from 'read-pkg';
 
 /**
@@ -86,7 +88,7 @@ export async function * readWorkspaces (options) {
       : (
           looksLikePnpm(mainPkg)
             ? await mapPnpmWorkspaces(mapWorkspacesOptions)
-            : undefined
+            : await mapDenoWorkspaces(mapWorkspacesOptions)
         );
 
   if (!workspaceList) {
@@ -157,4 +159,54 @@ async function mapPnpmWorkspaces ({ cwd = '.', pkg, ...options }) {
     cwd,
     pkg: modifiedPkg,
   });
+}
+
+/**
+ * @param {import('@npmcli/map-workspaces').Options} options
+ * @returns {Promise<Map<string, string> | undefined>}
+ */
+async function mapDenoWorkspaces ({ cwd = '.', pkg, ...options }) {
+  const workspaces = await readDenoConfigWorkspaces(cwd);
+
+  if (!workspaces) {
+    return;
+  }
+
+  const modifiedPkg = /** @type {NormalizedPackageJson} */ ({
+    ...pkg,
+    workspaces,
+  });
+
+  return mapWorkspaces({
+    ...options,
+    cwd,
+    pkg: modifiedPkg,
+  });
+}
+
+/**
+ * @param {string} cwd
+ * @returns {Promise<string[] | undefined>}
+ */
+async function readDenoConfigWorkspaces (cwd) {
+  for (const filename of ['deno.json', 'deno.jsonc']) {
+    try {
+      // eslint-disable-next-line security/detect-non-literal-fs-filename
+      const content = await readFile(path.resolve(cwd, filename), 'utf8');
+      const parsed = /** @type {unknown} */ (JSON.parse(content));
+
+      assertOptionalKeyWithType(parsed, 'workspace', 'array');
+
+      if (parsed.workspace && !isStringArray(parsed.workspace)) {
+        throw new TypeError('Invalid Deno workspace definition, expected an array of strings');
+      }
+
+      return parsed.workspace;
+    } catch (cause) {
+      if (cause && typeof cause === 'object' && 'code' in cause && (cause.code === 'ENOENT' || cause.code === 'ENOTDIR')) {
+        continue;
+      }
+      throw new Error('Failed to read Deno config', { cause });
+    }
+  }
 }

@@ -67,3 +67,12 @@ export const pnpmPkgResult = (/** @type {string} */ cwd) => {
     },
   };
 };
+
+export const denoPkgResult = (/** @type {string} */ cwd) => {
+  const { pkg: { workspaces, ...pkg } } = pkgResult(cwd);
+
+  return {
+    cwd,
+    pkg,
+  };
+};
