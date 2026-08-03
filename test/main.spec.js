@@ -3,7 +3,9 @@ import { describe, it } from 'node:test';
 import { join } from 'desm';
 
 import { readWorkspaces } from '../index.js';
-import { pkgResult, workspaceAResult, workspaceZResult, pnpmPkgResult } from './fixtures/lookup.js';
+import {
+  pkgResult, pnpmPkgResult, workspaceAResult, workspaceZResult,
+} from './fixtures/lookup.js';
 
 /**
  * @param {import('../index.js').Options} [options]
@@ -27,7 +29,7 @@ describe('readWorkspaces', () => {
     assert.strictEqual(data.length, 1);
 
     for (const item of data) {
-      assert.deepStrictEqual(Object.keys(item).sort(), ['cwd', 'pkg']);
+      assert.deepStrictEqual(Object.keys(item).toSorted(), ['cwd', 'pkg']);
       assert.strictEqual(item.pkg.name, 'read-workspaces');
     }
   });
