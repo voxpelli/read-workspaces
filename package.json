@@ -11,7 +11,7 @@
   "author": "Pelle Wessman <pelle@kodfabrik.se> (http://kodfabrik.se/)",
   "license": "MIT",
   "engines": {
-    "node": "^22.13.0 || >=24.0.0"
+    "node": "^22.22.2 || ^24.15.0 || >=26.0.0"
   },
   "type": "module",
   "exports": "./index.js",
@@ -26,7 +26,7 @@
     "build:0": "run-s clean",
     "build:1-declaration": "tsc -p declaration.tsconfig.json",
     "check": "run-s clean && run-p check:*",
-    "check:installed-check": "installed-check -i npm-run-all2",
+    "check:installed-check": "installed-check",
     "check:knip": "knip",
     "check:lint": "eslint --report-unused-disable-directives .",
     "check:tsc": "tsc",
