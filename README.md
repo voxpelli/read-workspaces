@@ -25,7 +25,7 @@ Detection priority: npm/Yarn/Bun (`package.json` workspaces) > pnpm > Deno.
 
 ## Usage
 
-### Simple
+### Using for await
 
 ```javascript
 import { readWorkspaces } from 'read-workspaces';
@@ -34,6 +34,15 @@ for await (const { cwd, pkg, workspace } = readWorkspaces()) {
   // ...
 }
 ```
+
+### As array
+
+```javascript
+import { readWorkspaces } from 'read-workspaces';
+
+const workspaces = await Array.fromAsync(readWorkspaces());
+```
+
 
 ## API
 
