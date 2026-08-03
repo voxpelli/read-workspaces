@@ -1,6 +1,6 @@
 {
   "name": "read-workspaces",
-  "version": "1.2.2",
+  "version": "2.0.0",
   "description": "Read all package.json files in a workspace — supports npm, Yarn, Bun, pnpm, and Deno",
   "homepage": "http://github.com/voxpelli/read-workspaces",
   "repository": {
