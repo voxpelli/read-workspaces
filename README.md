@@ -10,7 +10,7 @@ Supports workspace definitions from multiple package managers and runtimes:
 | **Yarn** | `package.json` `"workspaces"` | Direct (same format as npm) |
 | **Bun** | `package.json` `"workspaces"` | Direct (same format as npm) |
 | **pnpm** | [`pnpm-workspace.yaml`](https://pnpm.io/pnpm-workspace_yaml) | `packageManager`, `engines.pnpm`, or `pnpm` field in root `package.json` |
-| **Deno** | `deno.json` / `deno.jsonc` `"workspace"` | Presence of `deno.json`/`deno.jsonc` with a `workspace` array |
+| **Deno** | `deno.json` `"workspace"` | Presence of `deno.json` with a `workspace` array. Only standard JSON is supported — `deno.jsonc` files with comments are not parsed. |
 
 All workspace members must have a `package.json` file. For Deno workspaces, the workspace structure is read from `deno.json`, but each member's `package.json` is used for the resolved package data.
 

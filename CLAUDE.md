@@ -30,7 +30,7 @@ Workspace detection works by:
 1. Reading root `package.json` via `read-pkg`
 2. If `workspaces` field exists → npm/yarn/bun path via `@npmcli/map-workspaces`
 3. Else if pnpm indicators found (`packageManager` starts with `pnpm`, `engines.pnpm` exists, or `pnpm` field exists) → reads `pnpm-workspace.yaml` via `@pnpm/workspace.read-manifest`, converts to npm format
-4. Else → tries `deno.json`/`deno.jsonc` for Deno workspace array, converts to npm format
+4. Else → tries `deno.json` for Deno workspace array (standard JSON only, no JSONC comments), converts to npm format
 
 Tests in `test/main.spec.js` using `node:test` + `node:assert/strict`. Test fixtures in `test/fixtures/` for each workspace type. `test/fixtures/lookup.js` is a shared test helper (not a test file).
 

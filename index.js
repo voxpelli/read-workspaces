@@ -188,7 +188,7 @@ async function mapDenoWorkspaces ({ cwd = '.', pkg, ...options }) {
  * @returns {Promise<{ workspace?: string[] } | undefined>}
  */
 async function readDenoConfig (cwd) {
-  for (const filename of ['deno.json', 'deno.jsonc']) {
+  for (const filename of ['deno.json']) {
     try {
       const content = await readFile(path.resolve(cwd, filename), 'utf8');
       return JSON.parse(content);
