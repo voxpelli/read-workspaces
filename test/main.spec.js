@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import path from 'node:path';
 import { describe, it } from 'node:test';
 
+import { findCauseByReference } from 'pony-cause';
+
 import { readWorkspaces } from '../index.js';
 import {
   denoPkgResult, pkgResult, pnpmPkgResult, workspaceAResult, workspaceZResult,
@@ -206,7 +208,7 @@ describe('readWorkspaces', () => {
 
       await assert.rejects(
         () => collectWorkspaces({ cwd }),
-        (/** @type {unknown} */ err) => err instanceof SyntaxError
+        (/** @type {unknown} */ err) => !!findCauseByReference(err, SyntaxError)
       );
     });
   });

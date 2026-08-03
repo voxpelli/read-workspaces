@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import mapWorkspaces from '@npmcli/map-workspaces';
+import { assertOptionalKeyWithType, isStringArray } from '@voxpelli/typed-utils';
 import { readPackage } from 'read-pkg';
 
 /**
@@ -165,15 +166,15 @@ async function mapPnpmWorkspaces ({ cwd = '.', pkg, ...options }) {
  * @returns {Promise<Map<string, string> | undefined>}
  */
 async function mapDenoWorkspaces ({ cwd = '.', pkg, ...options }) {
-  const denoConfig = await readDenoConfig(cwd);
+  const workspaces = await readDenoConfigWorkspaces(cwd);
 
-  if (!denoConfig || !Array.isArray(denoConfig.workspace) || !denoConfig.workspace.every(/** @param {unknown} item */ item => typeof item === 'string')) {
+  if (!workspaces) {
     return;
   }
 
   const modifiedPkg = /** @type {NormalizedPackageJson} */ ({
     ...pkg,
-    workspaces: denoConfig.workspace,
+    workspaces,
   });
 
   return mapWorkspaces({
@@ -185,18 +186,27 @@ async function mapDenoWorkspaces ({ cwd = '.', pkg, ...options }) {
 
 /**
  * @param {string} cwd
- * @returns {Promise<{ workspace?: string[] } | undefined>}
+ * @returns {Promise<string[] | undefined>}
  */
-async function readDenoConfig (cwd) {
-  for (const filename of ['deno.json']) {
+async function readDenoConfigWorkspaces (cwd) {
+  for (const filename of ['deno.json', 'deno.jsonc']) {
     try {
+      // eslint-disable-next-line security/detect-non-literal-fs-filename
       const content = await readFile(path.resolve(cwd, filename), 'utf8');
-      return JSON.parse(content);
-    } catch (err) {
-      if (err && typeof err === 'object' && 'code' in err && (err.code === 'ENOENT' || err.code === 'ENOTDIR')) {
+      const parsed = /** @type {unknown} */ (JSON.parse(content));
+
+      assertOptionalKeyWithType(parsed, 'workspace', 'array');
+
+      if (parsed.workspace && !isStringArray(parsed.workspace)) {
+        throw new TypeError('Invalid Deno workspace definition, expected an array of strings');
+      }
+
+      return parsed.workspace;
+    } catch (cause) {
+      if (cause && typeof cause === 'object' && 'code' in cause && (cause.code === 'ENOENT' || cause.code === 'ENOTDIR')) {
         continue;
       }
-      throw err;
+      throw new Error('Failed to read Deno config', { cause });
     }
   }
 }
