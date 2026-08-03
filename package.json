@@ -1,7 +1,7 @@
 {
   "name": "read-workspaces",
   "version": "1.2.2",
-  "description": "Read all package.json files in a workspace",
+  "description": "Read all package.json files in a workspace — supports npm, Yarn, Bun, pnpm, and Deno",
   "homepage": "http://github.com/voxpelli/read-workspaces",
   "repository": {
     "type": "git",
@@ -25,24 +25,26 @@
     "build": "run-s build:*",
     "build:0": "run-s clean",
     "build:1-declaration": "tsc -p declaration.tsconfig.json",
-    "check": "run-s clean && run-p check:*",
-    "check:installed-check": "installed-check",
+    "check": "run-s clean && run-p check:* --continue-on-error && run-s check-type-tests",
+    "check:installed-check": "installed-check -i tstyche",
     "check:knip": "knip",
-    "check:lint": "eslint --report-unused-disable-directives .",
+    "check:lint": "eslint",
     "check:tsc": "tsc",
     "check:type-coverage": "type-coverage --detail --strict --at-least 99 --ignore-files 'test/*'",
+    "check-type-tests": "run-s build && tstyche --target \"$(node -p \"require('./package.json').engines.typescript\")\" --reporters list,summary && run-s clean",
     "clean": "run-p clean:*",
     "clean:declarations-top": "rm -rf $(find . -maxdepth 1 -type f -name '*.d.ts*')",
-    "prepare": "husky",
+    "husky-disable": "git config --unset core.hooksPath",
+    "husky-enable": "husky",
     "prepublishOnly": "run-s build",
     "test": "run-s check test:*",
     "test:node": "c8 --reporter=lcov --reporter text node --test test/*.spec.js",
     "test-ci": "run-s test:*"
   },
   "dependencies": {
-    "@npmcli/map-workspaces": "^3.0.4",
-    "@pnpm/workspace.read-manifest": "^2.0.0",
-    "read-pkg": "^9.0.1"
+    "@npmcli/map-workspaces": "^6.0.0",
+    "@pnpm/workspace.read-manifest": "^1000.3.0",
+    "read-pkg": "^10.1.0"
   },
   "devDependencies": {
     "@types/node": "^22.20.1",
