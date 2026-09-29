@@ -62,7 +62,7 @@
     "pony-cause": "^2.1.11",
     "tstyche": "^7.2.2",
     "type-coverage": "^2.30.1",
-    "typescript": "~6.0.3",
+    "typescript": "~7.0.2",
     "validate-conventional-commit": "^1.0.4"
   }
 }
