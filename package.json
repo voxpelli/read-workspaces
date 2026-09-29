@@ -49,7 +49,7 @@
     "read-pkg": "^10.1.0"
   },
   "devDependencies": {
-    "@types/node": "^22.20.1",
+    "@types/node": "^22.20.4",
     "@types/npmcli__map-workspaces": "^3.0.4",
     "@voxpelli/eslint-config": "^25.1.0",
     "@voxpelli/tsconfig": "^16.2.1",
@@ -61,7 +61,7 @@
     "npm-run-all2": "^9.0.3",
     "pony-cause": "^2.1.11",
     "tstyche": "^7.2.2",
-    "type-coverage": "^2.30.1",
+    "type-coverage": "^2.30.2",
     "typescript": "~6.0.3",
     "validate-conventional-commit": "^1.0.4"
   }
