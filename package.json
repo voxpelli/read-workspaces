@@ -60,7 +60,7 @@
     "knip": "^6.31.0",
     "npm-run-all2": "^9.0.3",
     "pony-cause": "^2.1.11",
-    "tstyche": "^7.2.2",
+    "tstyche": "^7.2.5",
     "type-coverage": "^2.30.1",
     "typescript": "~6.0.3",
     "validate-conventional-commit": "^1.0.4"
